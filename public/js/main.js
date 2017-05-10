@@ -56,7 +56,7 @@ $(function initializeMap () {
     activity: '/images/star-3.png'
   };
 
-  function drawMarker (type, coords) {
+  function drawMarker (type, coords, category) {
     const latLng = new google.maps.LatLng(coords[0], coords[1]);
     const iconURL = iconURLs[type];
     const marker = new google.maps.Marker({
@@ -64,6 +64,8 @@ $(function initializeMap () {
       position: latLng
     });
     marker.setMap(currentMap);
+    marker.set("category",category);
+    markers.push(marker);
   }
 
   // drawMarker('hotel', [40.705137, -74.007624]);
@@ -74,16 +76,16 @@ $(function initializeMap () {
 
 
   hotels.forEach(function(elem){
-    $("#hotel-choices").append("<option>"+elem.name+"</option>")
-  })
+    $("#hotel-choices").append("<option>"+elem.name+"</option>");
+  });
 
   restaurants.forEach(function(elem){
-    $("#restaurant-choices").append("<option>"+elem.name+"</option>")
-  })
+    $("#restaurant-choices").append("<option>"+elem.name+"</option>");
+  });
 
   activities.forEach(function(elem){
-    $("#activity-choices").append("<option>"+elem.name+"</option>")
-  })
+    $("#activity-choices").append("<option>"+elem.name+"</option>");
+  });
 
   // $('#options-panel').on('click', 'button', function(event){
   //   //Find way to target specific button
@@ -92,6 +94,13 @@ $(function initializeMap () {
   //   var selection = "#"+selection
   //   console.log($(selection).val())
   // })
+
+var daysItinerary = [
+  {},
+  {},
+  {}
+];
+
   $("#hotel-button").on("click",function(event){
     var hotelz = $("#hotel-choices").val();
     var location;
@@ -100,10 +109,10 @@ $(function initializeMap () {
       if(elem.name === hotelz){
       location = elem['place'].location;
       }
-    })
+    });
     $("#hotel-itinerary").text(hotelz);
-    drawMarker('hotel', location)
-  })
+    drawMarker('hotel', location, "day1Hotel");
+  });
 
   $("#restaurant-button").on("click",function(){
     var restaurantz = $("#restaurant-choices").val();
@@ -114,10 +123,11 @@ $(function initializeMap () {
       if(elem.name === restaurantz){
       location = elem['place'].location;
       }
-    })
+    });
     $("#restaurant-itinerary").text(restaurantz);
-    drawMarker('restaurant', location)
-  })
+    drawMarker('restaurant', location, "day1Rest")
+
+  });
 
   $("#activity-button").on("click",function(){
     var activitiez = $("#activity-choices").val();
@@ -128,10 +138,46 @@ $(function initializeMap () {
       if(elem.name === activitiez){
       location = elem['place'].location;
       }
-    })
+    });
     $("#activity-itinerary").text(activitiez);
-    drawMarker('activity', location)
+    drawMarker('activity', location, "day1Act");
 
-  })
-console.log(hotels)
+  });
+
+$(".day-buttons").on("click", function(event){
+  var dayNum = ($(event.target).text());
+  if(dayNum !== "+"){
+    $("#day-title").text("Day " + dayNum);
+  }
+})
+
+  var markers = [];
+  function clearMarker(category){
+    for(var i = 0; i < markers.length; i++){
+      if(markers[i].get("category") == category){
+        markers[i].setMap(null);
+      }
+    }
+  }
+
+  $("#itinerary").clone();
+
+$("#hotel-rm").on("click",function(){
+  $("#hotel-itinerary").text(" ");
+  $("#hotel-button").prop("disabled",false);
+  clearMarker("day1Hotel")
+});
+
+$("#restaurant-rm").on("click",function(){
+  $("#restaurant-itinerary").text(" ");
+  $("#restaurant-button").prop("disabled",false);
+  clearMarker("day1Rest");
+});
+
+$("#activity-rm").on("click",function(){
+  $("#activity-itinerary").text(" ");
+  $("#activity-button").prop("disabled",false);
+  clearMarker("day1Act")
+});
+
 });
